@@ -1,5 +1,4 @@
-# Data-and-Knowledge-Mining
-## University Lecture
+# University Lecture
 The aim of the course is to introduce data processing and analysis methods for the development of knowledge mining systems from data. The course has both theoretical and practical components. Students have the opportunity to learn about techniques for implementing theoretical concepts, and many examples using programming languages ​​such as Java, MATLAB, etc.
 
 Upon successful completion of the course, students will be able to:

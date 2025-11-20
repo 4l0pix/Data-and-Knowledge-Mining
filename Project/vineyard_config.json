@@ -1,0 +1,153 @@
+{
+  "zones": {
+    "Field1": {
+      "zone_id": "zone_1",
+      "boundary": [
+        {"lon": 25.702248, "lat": 35.333380},
+        {"lon": 25.702535, "lat": 35.333406},
+        {"lon": 25.702527, "lat": 35.333142},
+        {"lon": 25.702257, "lat": 35.333144}
+      ]
+    }, 
+    "Field2": {
+      "zone_id": "zone_2",
+      "boundary": [
+        {"lon": 25.697429, "lat": 35.335328},
+        {"lon": 25.697657, "lat": 35.335264},
+        {"lon": 25.697270, "lat": 35.334528},
+        {"lon": 25.696942, "lat": 35.334613}
+      ]
+    },
+    "Field3": {
+      "zone_id": "zone_3",
+      "boundary": [
+        {"lon": 25.703571, "lat": 35.332938},
+        {"lon": 25.703882, "lat": 35.332931},
+        {"lon": 25.703868, "lat": 35.332385},
+        {"lon": 25.703532, "lat": 35.332378}
+      ]
+    },
+    "Field4": {
+      "zone_id": "zone_4",
+      "boundary": [
+        {"lon": 25.693485, "lat": 35.328099},
+        {"lon": 25.693588, "lat": 35.328305},
+        {"lon": 25.694601, "lat": 35.328022},
+        {"lon": 25.694520, "lat": 35.327807}
+      ]
+    },
+    "Field5": {
+      "zone_id": "zone_5",
+      "boundary": [
+        {"lon": 25.702999, "lat": 35.334519},
+        {"lon": 25.703287, "lat": 35.334524},
+        {"lon": 25.703297, "lat": 35.334128},
+        {"lon": 25.703025, "lat": 35.334123}
+      ]
+    },
+    "Field6": {
+      "zone_id": "zone_6",
+      "boundary": [
+        {"lon":  25.698178, "lat": 35.333644},
+        {"lon": 25.698935, "lat": 35.333286},
+        {"lon":  25.698553, "lat": 35.332663},
+        {"lon": 25.697782, "lat": 35.332993}
+      ]
+    },
+    "Field7": {
+      "zone_id": "zone_7",
+      "boundary": [
+        {"lon": 25.700589, "lat": 35.333849},
+        {"lon": 25.701119, "lat": 35.332870},
+        {"lon":  25.700694, "lat": 35.332523},
+        {"lon":  25.699585, "lat": 35.333299}
+      ]
+    }
+  },
+  "sensors": {
+    "zone_1": [
+      {"sensor_id": "S1_1", "lon": 25.702280, "lat": 35.333360, "radius_m": 10},
+      {"sensor_id": "S1_2", "lon": 25.702360, "lat": 35.333280, "radius_m": 10},
+      {"sensor_id": "S1_3", "lon": 25.702440, "lat": 35.333350, "radius_m": 10},
+      {"sensor_id": "S1_4", "lon": 25.702300, "lat": 35.333200, "radius_m": 10},
+      {"sensor_id": "S1_5", "lon": 25.702460, "lat": 35.333210, "radius_m": 10}
+    ],
+    "zone_2": [
+      {"sensor_id": "S2_1", "lon": 25.697486, "lat": 35.335217, "radius_m": 10},
+      {"sensor_id": "S2_2", "lon": 25.697404, "lat": 35.335092, "radius_m": 10},
+      {"sensor_id": "S2_3", "lon": 25.697317, "lat": 35.334951, "radius_m": 10},
+      {"sensor_id": "S2_4", "lon": 25.697241, "lat":35.334790, "radius_m": 10},
+      {"sensor_id": "S2_5", "lon": 25.697148, "lat": 35.334631, "radius_m": 10}
+    ],
+    "zone_3": [
+      {"sensor_id": "S3_1", "lon": 25.703727, "lat": 35.332888, "radius_m": 10},
+      {"sensor_id": "S3_2", "lon": 25.703725, "lat": 35.332777, "radius_m": 10},
+      {"sensor_id": "S3_3", "lon": 25.703721, "lat": 35.332660, "radius_m": 10},
+      {"sensor_id": "S3_4", "lon": 25.703716, "lat": 35.332536, "radius_m": 10},
+      {"sensor_id": "S3_5", "lon": 25.703743, "lat": 35.332420, "radius_m": 10}
+    ],
+    "zone_4": [
+      {"sensor_id": "S4_1", "lon": 25.693600, "lat": 35.328200, "radius_m": 10},
+      {"sensor_id": "S4_2", "lon": 25.693900, "lat": 35.328100, "radius_m": 10},
+      {"sensor_id": "S4_3", "lon": 25.694200, "lat": 35.328000, "radius_m": 10},
+      {"sensor_id": "S4_4", "lon": 25.694450, "lat": 35.327950, "radius_m": 10}
+    ],
+    "zone_5": [
+      {"sensor_id": "S5_1", "lon": 25.703138, "lat":35.334496, "radius_m": 10},
+      {"sensor_id": "S5_2", "lon": 25.703141, "lat": 35.334411, "radius_m": 10},
+      {"sensor_id": "S5_3", "lon": 25.703148, "lat": 35.334320, "radius_m": 10},
+      {"sensor_id": "S5_4", "lon": 25.703152, "lat": 35.334243, "radius_m": 10},
+      {"sensor_id": "S5_5", "lon": 25.703165, "lat": 35.334135, "radius_m": 10}
+    ],
+    "zone_6": [
+      {"sensor_id": "S6_1", "lon": 25.698247, "lat": 35.333471, "radius_m": 10},
+      {"sensor_id": "S6_2", "lon": 25.698505, "lat": 35.333385, "radius_m": 10},
+      {"sensor_id": "S6_3", "lon": 25.698796, "lat": 35.333264, "radius_m": 10},
+      {"sensor_id": "S6_4", "lon": 25.698094, "lat": 35.333287, "radius_m": 10},
+      {"sensor_id": "S6_5", "lon": 25.698352, "lat": 35.333182, "radius_m": 10},
+      {"sensor_id": "S6_6", "lon": 25.698653, "lat": 35.333049, "radius_m": 10},
+      {"sensor_id": "S6_7", "lon": 25.697941, "lat": 35.333088, "radius_m": 10},
+      {"sensor_id": "S6_8", "lon": 25.698223, "lat": 35.332983, "radius_m": 10},
+      {"sensor_id": "S6_9", "lon": 25.698548, "lat": 35.332835, "radius_m": 10}
+    ],
+    "zone_7": [
+      {"sensor_id": "S7_1", "lon": 25.700464, "lat":35.333607, "radius_m": 10},
+      {"sensor_id": "S7_2", "lon": 25.700679, "lat": 35.333295, "radius_m": 10},
+      {"sensor_id": "S7_3", "lon": 25.700905, "lat": 35.332888, "radius_m": 10},
+      {"sensor_id": "S7_4", "lon": 25.700262, "lat":35.333439, "radius_m": 10},
+      {"sensor_id": "S7_5", "lon": 25.700498, "lat": 35.333115, "radius_m": 10},
+      {"sensor_id": "S7_6", "lon": 25.700777, "lat": 35.332822, "radius_m": 10},
+      {"sensor_id": "S7_7", "lon":  25.699902, "lat": 35.333260, "radius_m": 10},
+      {"sensor_id": "S7_8", "lon":  25.700251, "lat": 35.332954, "radius_m": 10},
+      {"sensor_id": "S7_9", "lon": 25.700578, "lat": 35.332722, "radius_m": 10}
+    ]
+  },
+  "weather_station": {
+    "station_id": "WS_1",
+    "description": "Central weather station covering vineyard area"
+  },
+  "optimal_ranges": {
+    "nutrients": {
+      "N": {"min": 20, "max": 40, "optimal": 30},
+      "P": {"min": 15, "max": 30, "optimal": 22},
+      "K": {"min": 150, "max": 250, "optimal": 200}
+    },
+    "moisture": {"min": 20, "max": 35, "optimal": 28},
+    "pH": {"min": 5.5, "max": 7.0, "optimal": 6.2}
+  },
+  "costs": {
+    "water_per_m3": 0.50,
+    "electricity_per_kwh": 0.12,
+    "pumping_energy_per_m3": 0.4,
+    "fertilizer_N_per_kg": 1.20,
+    "fertilizer_P_per_kg": 1.50,
+    "fertilizer_K_per_kg": 0.80
+  },
+  "growth_stages": [
+    {"stage": "Dormant", "months": [11, 12, 1, 2], "water_factor": 0.3, "nutrient_uptake": 0.1},
+    {"stage": "Budbreak", "months": [3, 4], "water_factor": 0.7, "nutrient_uptake": 0.5},
+    {"stage": "Flowering", "months": [5, 6], "water_factor": 1.0, "nutrient_uptake": 0.8},
+    {"stage": "Veraison", "months": [7, 8], "water_factor": 1.2, "nutrient_uptake": 1.0},
+    {"stage": "Harvest", "months": [9, 10], "water_factor": 0.8, "nutrient_uptake": 0.6}
+  ]
+}

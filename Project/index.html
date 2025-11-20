@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vineyard Decision Support System</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        #sidebar { 
+            width: 320px; 
+            background: rgb(119, 136, 115);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.18);
+            color: #F1F3E0; 
+            padding: 20px; 
+            overflow-y: auto;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        #map { flex: 1; }
+        h1 { 
+            font-size: 22px; 
+            margin-bottom: 20px; 
+            color: #F1F3E0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+        }
+        .section { 
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 15px;
+            box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+        .section h2 { 
+            font-size: 16px; 
+            margin-bottom: 12px; 
+            color: #D2DCB6;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-size: 14px; 
+            color: #F1F3E0;
+            font-weight: 500;
+        }
+        input[type="date"], select { 
+            width: 100%; 
+            padding: 10px; 
+            margin-bottom: 10px; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            color: #F1F3E0;
+            font-size: 14px;
+        }
+        input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(161, 188, 152, 0.6);
+            border-radius: 50%;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        input[type="radio"]:checked {
+            border-color: #A1BC98;
+            background: rgba(161, 188, 152, 0.3);
+        }
+        input[type="radio"]:checked::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #A1BC98;
+        }
+        input[type="date"]:focus, select:focus {
+            outline: none;
+            border: 1px solid rgba(210, 220, 182, 0.5);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        input[type="radio"]:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(161, 188, 152, 0.2);
+        }
+        button { 
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(161, 188, 152, 0.6);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            color: #662222;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        button:hover { 
+            background: rgba(210, 220, 182, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .layer-toggle { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+        .layer-toggle:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .layer-toggle input { 
+            margin: 0 10px 0 0;
+        }
+        .layer-toggle label {
+            margin: 0;
+            cursor: pointer;
+        }
+        #cost-display { 
+            background: rgba(102, 34, 34, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-top: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+        #cost-display h3 { 
+            color: #D2DCB6; 
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .cost-item { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-bottom: 8px; 
+            font-size: 13px; 
+            color: #F1F3E0;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .cost-item:last-child {
+            border-bottom: none;
+        }
+        .leaflet-popup-content { 
+            min-width: 200px;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+        }
+        
+        /* Custom scrollbar for glass effect */
+        #sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+        #sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        #sidebar::-webkit-scrollbar-thumb {
+            background: rgba(210, 220, 182, 0.5);
+            border-radius: 10px;
+        }
+        #sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(210, 220, 182, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h1>Vineyard DSS</h1>
+        
+        <div class="section">
+            <h2>Data Layers (Select One)</h2>
+            <div class="layer-toggle">
+                <input type="radio" name="layer" id="layer-moisture" value="ground_moisture" checked onchange="handleLayerChange()">
+                <label for="layer-moisture">Ground Moisture</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="radio" name="layer" id="layer-temperature" value="temperature" onchange="handleLayerChange()">
+                <label for="layer-temperature">Temperature</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="radio" name="layer" id="layer-humidity" value="humidity" onchange="handleLayerChange()">
+                <label for="layer-humidity">Humidity</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="radio" name="layer" id="layer-nutrients" value="nutrient_N" onchange="handleLayerChange()">
+                <label for="layer-nutrients">Nutrients (N)</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="radio" name="layer" id="layer-ph" value="pH" onchange="handleLayerChange()">
+                <label for="layer-ph">pH Levels</label>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>DSS Control</h2>
+            <label>Target Visit Date:</label>
+            <input type="date" id="target-date">
+            
+            <button onclick="calculateFullPrescription()">Full Analysis</button>
+            <button onclick="resetView()" style="background: #e74c3c;">Reset View</button>
+        </div>
+        
+        <div class="section" id="prescription-view-section" style="display: none;">
+            <h2>Prescription View</h2>
+            <div class="layer-toggle">
+                <input type="radio" name="prescription-view" id="view-water" value="water" onchange="handlePrescriptionViewChange()" checked>
+                <label for="view-water">Water Needs</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="radio" name="prescription-view" id="view-fertilizer" value="fertilizer" onchange="handlePrescriptionViewChange()">
+                <label for="view-fertilizer">Fertilizer Needs</label>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Cost Estimate</h2>
+            <div id="cost-display">
+                <h3>Total: 0.00EUR</h3>
+                <div class="cost-item"><span>Water:</span><span id="water-cost">0.00EUR</span></div>
+                <div class="cost-item"><span>Electricity:</span><span id="elec-cost">0.00EUR</span></div>
+                <div class="cost-item"><span>Fertilizer:</span><span id="fert-cost">0.00EUR</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="map"></div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map, config, currentPrescription = null;
+        let zoneLayers = [];
+        let heatmapLayers = [];
+        let sensorMarkers = [];
+        let sensorData = null;
+        let currentDate = new Date().toISOString().split('T')[0];
+        let currentDataType = 'ground_moisture';
+        let sensorWaterNeeds = null;
+        let sensorFertilizerNeeds = null;
+        let currentPrescriptionView = 'water';
+        
+        async function init() {
+            // set today's date
+            document.getElementById('target-date').value = currentDate;
+            map = L.map('map').setView([35.333, 25.700], 15);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            }).addTo(map);
+            
+            config = await fetch('/api/config').then(r => r.json());
+            drawZones();
+            drawSensors();
+            showHeatmapLayer('ground_moisture'); // show default layer
+        }
+        
+        function handleLayerChange() {
+            const selectedLayer = document.querySelector('input[name="layer"]:checked');
+            if (selectedLayer) {
+                currentDataType = selectedLayer.value;
+                showHeatmapLayer(selectedLayer.value);
+                updateSensorPopups();
+            }
+        }
+        
+        function drawZones() {
+            Object.entries(config.zones).forEach(([name, zone]) => {
+                const coords = zone.boundary.map(p => [p.lat, p.lon]);
+                const polygon = L.polygon(coords, {
+                    color: '#3498db',
+                    fillOpacity: 0.2
+                }).addTo(map);
+                
+                polygon.bindPopup(`<b>${name}</b><br>Zone ID: ${zone.zone_id}`);
+                polygon.on('click', () => showZoneDetails(zone.zone_id, name));
+                zoneLayers.push(polygon);
+            });
+        }
+        
+        async function drawSensors() {
+            // load sensor data
+            await fetchSensorData();
+            
+            Object.values(config.sensors).flat().forEach(sensor => {
+                const marker = L.circleMarker([sensor.lat, sensor.lon], {
+                    radius: 2,
+                    color: '#e74c3c',
+                    fillOpacity: 0.9,
+                    weight: 1
+                }).addTo(map);
+                
+                marker.sensorId = sensor.sensor_id;
+                marker.on('click', () => showSensorPopup(marker, sensor.sensor_id));
+                sensorMarkers.push(marker);
+            });
+        }
+        
+        async function fetchSensorData() {
+            try {
+                const response = await fetch('/api/sensor-data/' + currentDate);
+                sensorData = await response.json();
+            } catch (error) {
+                console.error('Error fetching sensor data:', error);
+            }
+        }
+        
+        function showSensorPopup(marker, sensorId) {
+            if (!sensorData) return;
+            
+            const data = sensorData.find(d => d.sensor_id === sensorId);
+            if (!data) return;
+            
+            const dataTypeLabels = {
+                'ground_moisture': 'Ground Moisture',
+                'temperature': 'Temperature',
+                'humidity': 'Humidity',
+                'nutrient_N': 'Nitrogen (N)',
+                'nutrient_P': 'Phosphorus (P)',
+                'nutrient_K': 'Potassium (K)',
+                'pH': 'pH Level'
+            };
+            
+            const dataTypeUnits = {
+                'ground_moisture': '%',
+                'temperature': '°C',
+                'humidity': '%',
+                'nutrient_N': 'mg/kg',
+                'nutrient_P': 'mg/kg',
+                'nutrient_K': 'mg/kg',
+                'pH': ''
+            };
+            
+            const label = dataTypeLabels[currentDataType] || currentDataType;
+            const unit = dataTypeUnits[currentDataType] || '';
+            const value = data[currentDataType];
+            
+            let popupContent = `<b>Sensor: ${sensorId}</b><br>`;
+            popupContent += `<b>${label}:</b> ${value !== undefined ? value.toFixed(2) : 'N/A'}${unit}<br>`;
+            popupContent += `<small>Date: ${currentDate}</small><br>`;
+            popupContent += `<hr style="margin: 5px 0;">`;
+            popupContent += `<small>Temperature: ${data.temperature.toFixed(1)}°C<br>`;
+            popupContent += `Humidity: ${data.humidity.toFixed(1)}%<br>`;
+            popupContent += `Moisture: ${data.ground_moisture.toFixed(1)}%<br>`;
+            popupContent += `pH: ${data.pH.toFixed(2)}</small>`;
+            
+            // add sensor advice
+            if (sensorWaterNeeds && sensorWaterNeeds[sensorId]) {
+                popupContent += `<hr style="margin: 5px 0;">`;
+                popupContent += `<b style="color: #4a90e2;">Water Prescription:</b><br>`;
+                popupContent += `<small>Recommended: ${sensorWaterNeeds[sensorId].water_mm.toFixed(2)} mm</small>`;
+            }
+            
+            if (sensorFertilizerNeeds && sensorFertilizerNeeds[sensorId]) {
+                popupContent += `<hr style="margin: 5px 0;">`;
+                popupContent += `<b style="color: #e2a44a;">Fertilizer Prescription:</b><br>`;
+                popupContent += `<small>N: ${sensorFertilizerNeeds[sensorId].N.toFixed(2)} mg/kg<br>`;
+                popupContent += `P: ${sensorFertilizerNeeds[sensorId].P.toFixed(2)} mg/kg<br>`;
+                popupContent += `K: ${sensorFertilizerNeeds[sensorId].K.toFixed(2)} mg/kg</small>`;
+            }
+            
+            marker.bindPopup(popupContent).openPopup();
+        }
+        
+        function updateSensorPopups() {
+            // refresh popup markers
+            sensorMarkers.forEach(marker => {
+                if (marker.isPopupOpen()) {
+                    showSensorPopup(marker, marker.sensorId);
+                }
+            });
+        }
+        
+        async function calculateFullPrescription() {
+            const targetDate = document.getElementById('target-date').value;
+            const response = await fetch('/api/prescription', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({target_date: targetDate})
+            });
+            
+            currentPrescription = await response.json();
+            sensorWaterNeeds = currentPrescription.sensor_water_needs;
+            sensorFertilizerNeeds = currentPrescription.sensor_fertilizer_needs;
+            displayCost(currentPrescription.cost_estimate);
+            
+            // reveal view toggle
+            document.getElementById('prescription-view-section').style.display = 'block';
+            document.getElementById('view-water').checked = true;
+            currentPrescriptionView = 'water';
+            
+            visualizePrescription();
+        }
+        
+        function handlePrescriptionViewChange() {
+            const waterRadio = document.getElementById('view-water');
+            const fertilizerRadio = document.getElementById('view-fertilizer');
+            
+            if (waterRadio.checked) {
+                currentPrescriptionView = 'water';
+            } else if (fertilizerRadio.checked) {
+                currentPrescriptionView = 'fertilizer';
+            }
+            
+            visualizePrescription();
+        }
+        
+        function displayCost(cost) {
+            document.querySelector('#cost-display h3').textContent = `Total: $${cost.total_cost}`;
+            document.getElementById('water-cost').textContent = `$${cost.water_cost}`;
+            document.getElementById('elec-cost').textContent = `$${cost.electricity_cost}`;
+            document.getElementById('fert-cost').textContent = `$${cost.fertilizer_cost}`;
+        }
+        
+        async function showHeatmapLayer(dataType) {
+            clearHeatmapLayers();
+            
+            const response = await fetch(`/api/heatmap-image/${currentDate}/${dataType}`);
+            if (!response.ok) return;
+            
+            const heatmapData = await response.json();
+            const bounds = heatmapData.bounds;
+            const imageUrl = 'data:image/png;base64,' + heatmapData.image;
+            
+            const imageOverlay = L.imageOverlay(imageUrl, bounds, {
+                opacity: 0.7,
+                interactive: false
+            }).addTo(map);
+            
+            heatmapLayers.push(imageOverlay);
+        }
+        
+        function clearHeatmapLayers() {
+            heatmapLayers.forEach(layer => map.removeLayer(layer));
+            heatmapLayers = [];
+        }
+        
+        async function visualizePrescription() {
+            if (!currentPrescription) return;
+            
+            zoneLayers.forEach(layer => map.removeLayer(layer));
+            zoneLayers = [];
+            clearHeatmapLayers();
+            
+            // pick sensor dataset
+            const sensorData = currentPrescriptionView === 'water' ? 
+                sensorWaterNeeds : sensorFertilizerNeeds;
+            
+            if (!sensorData) return;
+            
+            // fetch sensor heatmap
+            const response = await fetch('/api/prescription-heatmap', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    sensor_prescription_data: sensorData,
+                    prescription_type: currentPrescriptionView
+                })
+            });
+            
+            if (response.ok) {
+                const heatmapData = await response.json();
+                const bounds = heatmapData.bounds;
+                const imageUrl = 'data:image/png;base64,' + heatmapData.image;
+                
+                const imageOverlay = L.imageOverlay(imageUrl, bounds, {
+                    opacity: 0.7,
+                    interactive: false
+                }).addTo(map);
+                
+                heatmapLayers.push(imageOverlay);
+            }
+            
+            // draw zone overlays
+            Object.entries(config.zones).forEach(([name, zone]) => {
+                const coords = zone.boundary.map(p => [p.lat, p.lon]);
+                
+                const polygon = L.polygon(coords, {
+                    color: '#ffffff',
+                    fillColor: 'transparent',
+                    fillOpacity: 0,
+                    weight: 2
+                }).addTo(map);
+                
+                // summarize zone data
+                const zoneSensors = Object.entries(sensorData).filter(([sid, data]) => data.zone_id === zone.zone_id);
+                
+                if (currentPrescriptionView === 'water') {
+                    const avgWater = zoneSensors.reduce((sum, [sid, data]) => sum + data.water_mm, 0) / zoneSensors.length;
+                    polygon.bindPopup(`
+                        <b>${name}</b><br>
+                        Avg Water Need: ${avgWater.toFixed(1)} mm<br>
+                        <small>${zoneSensors.length} sensors in zone</small>
+                    `);
+                } else {
+                    const avgN = zoneSensors.reduce((sum, [sid, data]) => sum + data.N, 0) / zoneSensors.length;
+                    const avgP = zoneSensors.reduce((sum, [sid, data]) => sum + data.P, 0) / zoneSensors.length;
+                    const avgK = zoneSensors.reduce((sum, [sid, data]) => sum + data.K, 0) / zoneSensors.length;
+                    polygon.bindPopup(`
+                        <b>${name}</b><br>
+                        Avg N: ${avgN.toFixed(1)} mg/kg<br>
+                        Avg P: ${avgP.toFixed(1)} mg/kg<br>
+                        Avg K: ${avgK.toFixed(1)} mg/kg<br>
+                        <small>${zoneSensors.length} sensors in zone</small>
+                    `);
+                }
+                
+                zoneLayers.push(polygon);
+            });
+        }
+        
+        function resetView() {
+            currentPrescription = null;
+            sensorWaterNeeds = null;
+            sensorFertilizerNeeds = null;
+            currentPrescriptionView = 'water';
+            zoneLayers.forEach(layer => map.removeLayer(layer));
+            zoneLayers = [];
+            clearHeatmapLayers();
+            drawZones();
+            document.querySelector('#cost-display h3').textContent = 'Total: $0.00';
+            document.getElementById('water-cost').textContent = '$0.00';
+            document.getElementById('elec-cost').textContent = '$0.00';
+            document.getElementById('fert-cost').textContent = '$0.00';
+            document.getElementById('prescription-view-section').style.display = 'none';
+        }
+        
+        // layer toggle hooks
+        document.getElementById('layer-moisture').addEventListener('change', (e) => {
+            if (e.target.checked) showHeatmapLayer('ground_moisture');
+            else clearHeatmapLayers();
+        });
+        
+        document.getElementById('layer-temperature').addEventListener('change', (e) => {
+            if (e.target.checked) showHeatmapLayer('temperature');
+            else clearHeatmapLayers();
+        });
+        
+        document.getElementById('layer-humidity').addEventListener('change', (e) => {
+            if (e.target.checked) showHeatmapLayer('humidity');
+            else clearHeatmapLayers();
+        });
+        
+        document.getElementById('layer-nutrients').addEventListener('change', (e) => {
+            if (e.target.checked) showHeatmapLayer('nutrient_N');
+            else clearHeatmapLayers();
+        });
+        
+        document.getElementById('layer-ph').addEventListener('change', (e) => {
+            if (e.target.checked) showHeatmapLayer('pH');
+            else clearHeatmapLayers();
+        });
+        
+        init();
+    </script>
+</body>
+</html>

@@ -5,6 +5,7 @@ from dss_algorithm import VineyardDSS
 from spatial_interpolation import SpatialInterpolator
 from data_generator import VineyardDataGenerator
 from heatmap_generator import HeatmapGenerator
+from data_mining import VineyardDataMiner
 import os
 
 app = Flask(__name__, static_folder='.')
@@ -99,6 +100,112 @@ def get_sensor_data(date):
         return jsonify(date_data.to_dict('records'))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/mining/outliers', methods=['POST'])
+def detect_outliers():
+    data = request.json
+    days_back = data.get('days_back', 30)
+    method = data.get('method', 'statistical')  # 'statistical' or 'isolation_forest'
+    
+    miner = VineyardDataMiner()
+    sensor_data = miner.load_sensor_data(days_back=days_back)
+    
+    if method == 'statistical':
+        outliers = miner.detect_outliers_statistical(sensor_data)
+    else:
+        outliers = miner.detect_outliers_isolation_forest(sensor_data)
+    
+    return jsonify({
+        'outliers_count': len(outliers),
+        'outliers': outliers.to_dict('records') if len(outliers) > 0 else [],
+        'affected_sensors': outliers['sensor_id'].nunique() if len(outliers) > 0 else 0
+    })
+
+@app.route('/api/mining/clusters', methods=['POST'])
+def cluster_sensors():
+    data = request.json
+    days_back = data.get('days_back', 30)
+    cluster_type = data.get('type', 'spatial')  # 'spatial' or 'temporal'
+    n_clusters = data.get('n_clusters', None)
+    
+    miner = VineyardDataMiner()
+    sensor_data = miner.load_sensor_data(days_back=days_back)
+    
+    if cluster_type == 'spatial':
+        clusters = miner.cluster_sensors_spatial(sensor_data, n_clusters=n_clusters)
+    else:
+        clusters = miner.cluster_temporal_patterns(sensor_data, n_clusters=n_clusters or 4)
+    
+    if clusters is not None:
+        return jsonify({
+            'clusters': clusters.to_dict('records'),
+            'cluster_count': clusters.iloc[:, 1].nunique(),  # second column is cluster id
+            'success': True
+        })
+    else:
+        return jsonify({'success': False, 'message': 'insufficient data for clustering'})
+
+@app.route('/api/mining/anomalies', methods=['POST'])
+def detect_anomalies():
+    data = request.json
+    days_back = data.get('days_back', 30)
+    
+    miner = VineyardDataMiner()
+    sensor_data = miner.load_sensor_data(days_back=days_back)
+    
+    zone_anomalies = miner.find_anomalous_zones(sensor_data)
+    sensor_drift = miner.detect_sensor_drift(sensor_data)
+    
+    return jsonify({
+        'anomalous_zones': zone_anomalies['anomalous_zones'],
+        'zone_scores': zone_anomalies['anomaly_scores'],
+        'sensor_drift': sensor_drift.to_dict('records') if len(sensor_drift) > 0 else [],
+        'drift_count': len(sensor_drift)
+    })
+
+@app.route('/api/mining/clean-data', methods=['POST'])
+def clean_data():
+    data = request.json
+    days_back = data.get('days_back', 30)
+    method = data.get('method', 'cap')  # 'remove', 'cap', 'interpolate'
+    
+    miner = VineyardDataMiner()
+    sensor_data = miner.load_sensor_data(days_back=days_back)
+    
+    # detect outliers first
+    outliers = miner.detect_outliers_statistical(sensor_data)
+    
+    # clean data
+    cleaned_data = miner.clean_outliers(sensor_data, method=method, outlier_data=outliers)
+    
+    return jsonify({
+        'original_records': len(sensor_data),
+        'cleaned_records': len(cleaned_data),
+        'outliers_processed': len(outliers),
+        'cleaning_method': method,
+        'success': True
+    })
+
+@app.route('/api/mining/report', methods=['POST'])
+def generate_mining_report():
+    data = request.json
+    days_back = data.get('days_back', 30)
+    
+    miner = VineyardDataMiner()
+    sensor_data = miner.load_sensor_data(days_back=days_back)
+    
+    try:
+        report = miner.generate_mining_report(sensor_data)
+        return jsonify({
+            'success': True,
+            'report': report,
+            'file_saved': 'mining_report.json'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     if not os.path.exists('sensor_data.csv'):

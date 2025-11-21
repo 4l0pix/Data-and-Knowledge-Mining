@@ -1,0 +1,84 @@
+{
+  "analysis_date": "2025-11-21T19:31:32.813415",
+  "data_period": {
+    "start_date": "2025-12-09T00:00:00",
+    "end_date": "2025-12-19T00:00:00",
+    "total_records": 462,
+    "sensors_count": 42
+  },
+  "outliers": {
+    "statistical_outliers_count": 81,
+    "isolation_outliers_count": 47,
+    "total_affected_sensors": 32
+  },
+  "spatial_clustering": {
+    "clusters_found": 3,
+    "cluster_distribution": {
+      "0": 19,
+      "1": 17,
+      "2": 6
+    }
+  },
+  "temporal_clustering": {
+    "pattern_clusters": 4,
+    "high_variance_sensors": 9
+  },
+  "anomalies": {
+    "anomalous_zones": [
+      "zone_5"
+    ],
+    "zone_anomaly_scores": {
+      "zone_1": 1.0151450917133127,
+      "zone_2": 0.5692098830285248,
+      "zone_3": 0.5516033598969537,
+      "zone_4": 0.029700539444801156,
+      "zone_5": 1.2545693688727428,
+      "zone_6": 0.6454106930393403,
+      "zone_7": 0.6748571677723143
+    },
+    "sensors_with_drift": 18,
+    "high_severity_drift": 0
+  },
+  "data_quality": {
+    "ground_moisture": {
+      "missing_percentage": 0.0,
+      "outlier_percentage": 16.883116883116884,
+      "coefficient_variation": 6.600185510008229
+    },
+    "temperature": {
+      "missing_percentage": 0.0,
+      "outlier_percentage": 0.0,
+      "coefficient_variation": 28.89507050892743
+    },
+    "humidity": {
+      "missing_percentage": 0.0,
+      "outlier_percentage": 0.0,
+      "coefficient_variation": 12.774736564579495
+    },
+    "nutrient_N": {
+      "missing_percentage": 0.0,
+      "outlier_percentage": 0.0,
+      "coefficient_variation": 11.604851403485496
+    },
+    "nutrient_P": {
+      "missing_percentage": 0.0,
+      "outlier_percentage": 0.6493506493506493,
+      "coefficient_variation": 27.650075706833636
+    },
+    "nutrient_K": {
+      "missing_percentage": 0.0,
+      "outlier_percentage": 0.0,
+      "coefficient_variation": 17.332129161519738
+    },
+    "pH": {
+      "missing_percentage": 0.0,
+      "outlier_percentage": 0.0,
+      "coefficient_variation": 4.056061996366403
+    }
+  },
+  "recommendations": [
+    "high outlier rate detected - consider sensor calibration",
+    "investigate anomalous zones: ['zone_5']",
+    "sensor drift detected - schedule maintenance"
+  ]
+}

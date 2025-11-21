@@ -12,6 +12,7 @@ This document describes the architecture, data flow, and implementation details 
    - [dss_algorithm.py](#dss_algorithmpy)
    - [heatmap_generator.py](#heatmap_generatorpy)
    - [spatial_interpolation.py](#spatial_interpolationpy)
+   - [data_mining.py](#data_miningpy)
    - [app.py](#apppy)
 4. [Frontend Application](#frontend-application)
    - [index.html Structure](#indexhtml-structure)
@@ -34,6 +35,8 @@ Key capabilities:
 - Compute irrigation and fertilization requirements per sensor region.
 - Render high-resolution contour heatmaps for measured data and prescriptions.
 - Provide cost breakdowns for planned interventions.
+- Advanced data mining algorithms for outlier detection, clustering, and anomaly analysis.
+- Data quality management with automated cleaning and sensor drift detection.
 
 ---
 
@@ -110,6 +113,58 @@ Handles visualization of sensor measurements and prescriptions.
 
 Legacy module offering inverse distance weighting (IDW) interpolation. The main application now uses the Matplotlib-based approach from `heatmap_generator.py`, but this module remains for potential alternative interpolation strategies.
 
+### data_mining.py
+
+Advanced analytics module providing comprehensive data quality management and pattern discovery capabilities for vineyard sensor data.
+
+**VineyardDataMiner class:**
+
+- **Outlier Detection Methods:**
+  - `detect_outliers_statistical(method='both')`: Statistical approach using Z-score (threshold=3) and Interquartile Range (IQR) methods to identify sensors with anomalous readings.
+  - `detect_outliers_isolation_forest(contamination=0.1)`: Machine learning approach using scikit-learn's Isolation Forest algorithm for unsupervised anomaly detection.
+  - Automatically filters outliers by measurement type (temperature, humidity, moisture, nutrients, pH) with appropriate thresholds.
+
+- **Data Cleaning Operations:**
+  - `clean_outliers(method='remove')`: Multiple strategies for handling detected outliers:
+    - `'remove'`: Eliminates outlier records completely
+    - `'cap'`: Caps values at 95th/5th percentiles to reduce extreme values
+    - `'interpolate'`: Replaces outliers with interpolated values based on temporal patterns
+  - Maintains data integrity while improving analysis reliability.
+
+- **Clustering Analysis:**
+  - `cluster_sensors_spatial(n_clusters='auto')`: Groups sensors based on environmental characteristics (temperature, humidity, moisture) using K-Means clustering.
+  - `cluster_temporal_patterns(n_components=3)`: Analyzes temporal behavior patterns using Principal Component Analysis (PCA) followed by K-Means clustering.
+  - `_find_optimal_clusters()`: Automatically determines optimal cluster count using elbow method and silhouette analysis.
+  - Supports both predefined cluster counts and automatic optimization.
+
+- **Anomaly Detection:**
+  - `find_anomalous_zones(threshold=2.0)`: Identifies vineyard zones with consistently abnormal sensor readings compared to zone averages.
+  - `detect_sensor_drift(window_days=7, threshold=0.1)`: Detects gradual sensor calibration drift by analyzing measurement stability over time windows.
+  - Uses statistical methods to identify systematic measurement errors and equipment malfunctions.
+
+- **Comprehensive Reporting:**
+  - `generate_mining_report(days_back=30)`: Creates detailed analysis report including:
+    - Data quality assessment (missing values, outliers, drift)
+    - Clustering analysis results with sensor groupings
+    - Anomaly detection summary with affected zones/sensors
+    - Actionable recommendations for data quality improvement
+    - Statistical summaries and confidence metrics
+  - JSON-formatted output suitable for API responses and frontend visualization.
+
+**Technical Implementation:**
+
+- **Dependencies:** scikit-learn (clustering, anomaly detection), scipy.stats (statistical tests), pandas (data manipulation), numpy (numerical operations)
+- **Algorithms:** K-Means clustering, DBSCAN (density-based clustering), Isolation Forest (anomaly detection), PCA (dimensionality reduction)
+- **Data Processing:** Robust scaling, missing value handling, temporal window analysis
+- **Performance:** Optimized for datasets with thousands of sensor readings across multiple time periods
+
+**Integration with DSS:**
+
+- Seamlessly integrated with existing vineyard configuration and sensor data schemas
+- Provides data quality insights to improve prescription accuracy
+- Identifies sensor maintenance needs and calibration requirements
+- Supports proactive vineyard management through pattern recognition
+
 ### app.py
 
 Flask API server.
@@ -124,6 +179,14 @@ Flask API server.
 - `POST /api/prescription-heatmap` generates prescription heatmap overlays from sensor-level data.
 - `GET /api/sensor-data/<date>` supplies raw sensor readings for UI popups.
 - `POST /api/generate-data` (optional) re-runs the data generator.
+
+**Data Mining Endpoints:**
+
+- `POST /api/mining/outliers` detects anomalous sensor readings using statistical or machine learning methods. Accepts `days_back` (analysis period) and `method` ('statistical', 'isolation_forest', or 'both').
+- `POST /api/mining/clusters` performs spatial or temporal clustering analysis. Accepts `days_back`, `type` ('spatial' or 'temporal'), and optional `n_clusters`.
+- `POST /api/mining/anomalies` identifies anomalous zones and sensor drift. Accepts `days_back` and `threshold` parameters for sensitivity control.
+- `POST /api/mining/clean-data` applies data cleaning operations to remove or modify outlier values. Accepts `days_back` and `method` ('remove', 'cap', or 'interpolate').
+- `POST /api/mining/report` generates comprehensive mining analysis report including outliers, clusters, anomalies, and recommendations. Accepts `days_back` parameter.
 
 The app ensures `sensor_data.csv` exists on startup by invoking `VineyardDataGenerator` when necessary.
 
@@ -140,6 +203,7 @@ A single-page interface with three primary sections:
    - DSS controls (target date input, full analysis trigger, reset button).
    - Prescription view toggle (water vs. fertilizer) shown after full analysis.
    - Cost breakdown display (total, water, electricity, fertilizer).
+   - Data mining controls (analysis period selector, outlier detection, clustering, anomaly detection, comprehensive reports).
 2. **Map Container** (`#map`)
    - Leaflet map centered on the vineyard with Esri satellite tiles.
 3. **Modal/Popup Elements** (Leaflet popups attached to sensors/zones).
@@ -160,6 +224,14 @@ Main functions:
 - `handlePrescriptionViewChange()`: Switches between water and fertilizer heatmaps.
 - `visualizePrescription()`: Generates prescription heatmap overlay via `/api/prescription-heatmap`, renders zone boundaries, and summarizes average needs in zone popups.
 - `resetView()`: Clears map layers, hides prescription controls, resets cost display.
+- `detectOutliers()`: Calls mining API for statistical outlier detection and highlights affected sensors on map.
+- `clusterSensors()`: Performs spatial clustering analysis and visualizes sensor groups with color coding.
+- `detectAnomalies()`: Identifies anomalous zones and sensor drift, highlighting problem areas.
+- `generateMiningReport()`: Creates comprehensive data mining report with quality assessment and recommendations.
+- `displayMiningResults(title, results)`: Shows mining analysis results in dedicated UI panel.
+- `highlightSensorsOnMap(sensorIds, color)`: Visual highlighting of specific sensors for outlier/cluster visualization.
+- `visualizeClusters(clusters)`: Color-codes sensors based on cluster assignments for spatial analysis.
+- `highlightAnomalousZones(zones)`: Emphasizes vineyard zones with detected anomalies.
 
 ### Styling Highlights
 
@@ -191,6 +263,11 @@ These files are regenerated by `data_generator.py` if missing.
    - Toggle between *Water Needs* and *Fertilizer Needs* heatmaps.
    - Inspect individual sensors for localized recommendations.
    - Review cost estimates for planned interventions.
+   - Use data mining tools to:
+     - Detect outlier sensors requiring attention
+     - Analyze sensor clustering patterns
+     - Identify anomalous zones and sensor drift
+     - Generate comprehensive data quality reports
 
 ---
 
@@ -201,5 +278,8 @@ These files are regenerated by `data_generator.py` if missing.
 - **Different Cost Models**: Modify the `costs` section and related calculations in `dss_algorithm.py`.
 - **New Visualization Layers**: Extend `heatmap_generator.py` and UI handlers to support additional metrics.
 - **Real Data Integration**: Replace `data_generator.py` outputs with actual sensor feeds; ensure CSV schema remains consistent.
+- **Advanced Mining Algorithms**: Extend `data_mining.py` with additional clustering methods (DBSCAN, hierarchical), anomaly detection algorithms, or predictive models.
+- **Automated Quality Control**: Integrate mining results with DSS prescriptions to automatically flag unreliable sensor data and adjust recommendations.
+- **Machine Learning Integration**: Add supervised learning models for prediction, classification, or recommendation enhancement based on historical patterns.
 
 This documentation should serve as a comprehensive guide to the structure and behavior of the Vineyard DSS project.

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vineyard Decision Support System</title>
+    <title>Σύστημα Υποστήριξης Αποφάσεων</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -49,6 +49,32 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+        
+        .mining-stats {
+            margin-top: 10px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        #mining-results {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(102, 34, 34, 0.2);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        #mining-days {
+            width: 80px;
+            margin-bottom: 10px;
         }
         label { 
             display: block; 
@@ -210,54 +236,70 @@
             <h2>Data Layers (Select One)</h2>
             <div class="layer-toggle">
                 <input type="radio" name="layer" id="layer-moisture" value="ground_moisture" checked onchange="handleLayerChange()">
-                <label for="layer-moisture">Ground Moisture</label>
+                <label for="layer-moisture">Υγρασία Εδάφους</label>
             </div>
             <div class="layer-toggle">
                 <input type="radio" name="layer" id="layer-temperature" value="temperature" onchange="handleLayerChange()">
-                <label for="layer-temperature">Temperature</label>
+                <label for="layer-temperature">Θερμοκρασία</label>
             </div>
             <div class="layer-toggle">
                 <input type="radio" name="layer" id="layer-humidity" value="humidity" onchange="handleLayerChange()">
-                <label for="layer-humidity">Humidity</label>
+                <label for="layer-humidity">Υγρασία Αέρα</label>
             </div>
             <div class="layer-toggle">
                 <input type="radio" name="layer" id="layer-nutrients" value="nutrient_N" onchange="handleLayerChange()">
-                <label for="layer-nutrients">Nutrients (N)</label>
+                <label for="layer-nutrients">Θρεπτικά Συστατικά (N)</label>
             </div>
             <div class="layer-toggle">
                 <input type="radio" name="layer" id="layer-ph" value="pH" onchange="handleLayerChange()">
-                <label for="layer-ph">pH Levels</label>
+                <label for="layer-ph">Επίπεδα pH</label>
             </div>
         </div>
         
         <div class="section">
-            <h2>DSS Control</h2>
-            <label>Target Visit Date:</label>
+            <h2>Έλεγχος DSS</h2>
+            <label>Ημερομηνία Επίσκεψης:</label>
             <input type="date" id="target-date">
             
-            <button onclick="calculateFullPrescription()">Full Analysis</button>
-            <button onclick="resetView()" style="background: #e74c3c;">Reset View</button>
+            <button onclick="calculateFullPrescription()">Πλήρης Ανάλυση</button>
+            <button onclick="resetView()" style="background: #e74c3c;">Επαναφορά Προβολής</button>
         </div>
         
         <div class="section" id="prescription-view-section" style="display: none;">
-            <h2>Prescription View</h2>
+            <h2>Προβολή Συμβουλής</h2>
             <div class="layer-toggle">
                 <input type="radio" name="prescription-view" id="view-water" value="water" onchange="handlePrescriptionViewChange()" checked>
-                <label for="view-water">Water Needs</label>
+                <label for="view-water">Ανάγκες Νερού</label>
             </div>
             <div class="layer-toggle">
                 <input type="radio" name="prescription-view" id="view-fertilizer" value="fertilizer" onchange="handlePrescriptionViewChange()">
-                <label for="view-fertilizer">Fertilizer Needs</label>
+                <label for="view-fertilizer">Ανάγκες Λιπάσματος</label>
             </div>
         </div>
         
         <div class="section">
-            <h2>Cost Estimate</h2>
+            <h2>Ανάλυση Δεδομένων</h2>
+            <label>Περίοδος Ανάλυσης (ημέρες):</label>
+            <input type="number" id="mining-days" value="30" min="7" max="90">
+            
+            <button onclick="detectOutliers()">Εύρεση Outliers</button>
+            <button onclick="clusterSensors()">Ανάλυση Clusters</button>
+            <button onclick="detectAnomalies()">Εύρεση Ανωμαλιών</button>
+            <button onclick="generateMiningReport()">Πλήρης Αναφορά</button>
+            
+            <div id="mining-results" style="display: none;">
+                <h3>Αποτελέσματα Ανάλυσης</h3>
+                <div id="mining-content"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Εκτίμηση Κόστους</h2>
             <div id="cost-display">
-                <h3>Total: 0.00EUR</h3>
-                <div class="cost-item"><span>Water:</span><span id="water-cost">0.00EUR</span></div>
-                <div class="cost-item"><span>Electricity:</span><span id="elec-cost">0.00EUR</span></div>
-                <div class="cost-item"><span>Fertilizer:</span><span id="fert-cost">0.00EUR</span></div>
+                <h3>Σύνολο: 0.00EUR</h3>
+                <div class="cost-item"><span>Νερό:</span><span id="water-cost">0.00EUR</span></div>
+                <div class="cost-item"><span>Ηλεκτρισμός:</span><span id="elec-cost">0.00EUR</span></div>
+                <div class="cost-item"><span>Λίπασμα:</span><span id="fert-cost">0.00EUR</span></div>
             </div>
         </div>
     </div>
@@ -276,6 +318,7 @@
         let sensorWaterNeeds = null;
         let sensorFertilizerNeeds = null;
         let currentPrescriptionView = 'water';
+        let miningResults = null;
         
         async function init() {
             // set today's date
@@ -550,6 +593,7 @@
             sensorWaterNeeds = null;
             sensorFertilizerNeeds = null;
             currentPrescriptionView = 'water';
+            miningResults = null;
             zoneLayers.forEach(layer => map.removeLayer(layer));
             zoneLayers = [];
             clearHeatmapLayers();
@@ -559,6 +603,138 @@
             document.getElementById('elec-cost').textContent = '$0.00';
             document.getElementById('fert-cost').textContent = '$0.00';
             document.getElementById('prescription-view-section').style.display = 'none';
+            document.getElementById('mining-results').style.display = 'none';
+        }
+        
+        async function detectOutliers() {
+            const days = document.getElementById('mining-days').value;
+            const response = await fetch('/api/mining/outliers', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({days_back: parseInt(days), method: 'statistical'})
+            });
+            
+            const result = await response.json();
+            displayMiningResults('Outlier Detection', {
+                'Total Outliers': result.outliers_count,
+                'Affected Sensors': result.affected_sensors,
+                'Detection Method': 'Statistical (Z-Score + IQR)'
+            });
+            
+            // highlight outlier sensors on map
+            if (result.outliers && result.outliers.length > 0) {
+                highlightSensorsOnMap(result.outliers.map(o => o.sensor_id), 'orange');
+            }
+        }
+        
+        async function clusterSensors() {
+            const days = document.getElementById('mining-days').value;
+            const response = await fetch('/api/mining/clusters', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({days_back: parseInt(days), type: 'spatial'})
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                displayMiningResults('Spatial Clustering', {
+                    'Clusters Found': result.cluster_count,
+                    'Total Sensors': result.clusters.length,
+                    'Method': 'K-Means'
+                });
+                
+                // color sensors by cluster
+                visualizeClusters(result.clusters);
+            }
+        }
+        
+        async function detectAnomalies() {
+            const days = document.getElementById('mining-days').value;
+            const response = await fetch('/api/mining/anomalies', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({days_back: parseInt(days)})
+            });
+            
+            const result = await response.json();
+            displayMiningResults('Anomaly Detection', {
+                'Anomalous Zones': result.anomalous_zones.join(', ') || 'None',
+                'Sensors with Drift': result.drift_count,
+                'Analysis Period': `${days} days`
+            });
+            
+            // highlight anomalous zones
+            if (result.anomalous_zones.length > 0) {
+                highlightAnomalousZones(result.anomalous_zones);
+            }
+        }
+        
+        async function generateMiningReport() {
+            const days = document.getElementById('mining-days').value;
+            const response = await fetch('/api/mining/report', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({days_back: parseInt(days)})
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                miningResults = result.report;
+                displayMiningResults('Comprehensive Mining Report', {
+                    'Data Period': `${result.report.data_period.start_date} to ${result.report.data_period.end_date}`,
+                    'Total Records': result.report.data_period.total_records,
+                    'Sensors Analyzed': result.report.data_period.sensors_count,
+                    'Statistical Outliers': result.report.outliers.statistical_outliers_count,
+                    'Anomalous Zones': result.report.anomalies.anomalous_zones.join(', ') || 'None',
+                    'Drift Sensors': result.report.anomalies.sensors_with_drift,
+                    'Recommendations': result.report.recommendations.join('; ') || 'No issues detected'
+                });
+            }
+        }
+        
+        function displayMiningResults(title, results) {
+            const resultsDiv = document.getElementById('mining-results');
+            const contentDiv = document.getElementById('mining-content');
+            
+            let html = `<h4>${title}</h4><div class="mining-stats">`;
+            for (const [key, value] of Object.entries(results)) {
+                html += `<div class="stat-item"><span>${key}:</span> <strong>${value}</strong></div>`;
+            }
+            html += '</div>';
+            
+            contentDiv.innerHTML = html;
+            resultsDiv.style.display = 'block';
+        }
+        
+        function highlightSensorsOnMap(sensorIds, color) {
+            sensorMarkers.forEach(marker => {
+                if (sensorIds.includes(marker.sensorId)) {
+                    marker.setStyle({color: color, fillColor: color});
+                }
+            });
+        }
+        
+        function visualizeClusters(clusters) {
+            const colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred', 'lightred', 'beige'];
+            
+            clusters.forEach(cluster => {
+                const color = colors[cluster.cluster_id % colors.length];
+                const marker = sensorMarkers.find(m => m.sensorId === cluster.sensor_id);
+                if (marker) {
+                    marker.setStyle({color: color, fillColor: color});
+                }
+            });
+        }
+        
+        function highlightAnomalousZones(anomalousZones) {
+            zoneLayers.forEach(layer => {
+                // find zone id for this layer
+                Object.entries(config.zones).forEach(([name, zone]) => {
+                    if (anomalousZones.includes(zone.zone_id)) {
+                        layer.setStyle({color: 'red', weight: 4});
+                    }
+                });
+            });
         }
         
         // layer toggle hooks

@@ -1,22 +1,21 @@
 {
-  "analysis_date": "2025-11-21T19:31:32.813415",
+  "analysis_date": "2025-11-21T21:19:34.497347",
   "data_period": {
-    "start_date": "2025-12-09T00:00:00",
+    "start_date": "2025-11-19T00:00:00",
     "end_date": "2025-12-19T00:00:00",
-    "total_records": 462,
+    "total_records": 1302,
     "sensors_count": 42
   },
   "outliers": {
-    "statistical_outliers_count": 81,
-    "isolation_outliers_count": 47,
-    "total_affected_sensors": 32
+    "statistical_outliers_count": 283,
+    "isolation_outliers_count": 131,
+    "total_affected_sensors": 41
   },
   "spatial_clustering": {
-    "clusters_found": 3,
+    "clusters_found": 2,
     "cluster_distribution": {
-      "0": 19,
-      "1": 17,
-      "2": 6
+      "0": 31,
+      "1": 11
     }
   },
   "temporal_clustering": {
@@ -28,52 +27,52 @@
       "zone_5"
     ],
     "zone_anomaly_scores": {
-      "zone_1": 1.0151450917133127,
-      "zone_2": 0.5692098830285248,
-      "zone_3": 0.5516033598969537,
-      "zone_4": 0.029700539444801156,
-      "zone_5": 1.2545693688727428,
-      "zone_6": 0.6454106930393403,
-      "zone_7": 0.6748571677723143
+      "zone_1": 0.824779039124831,
+      "zone_2": 0.9688549482091556,
+      "zone_3": 0.9629786775708873,
+      "zone_4": 0.46002328056126457,
+      "zone_5": 1.1021853992536723,
+      "zone_6": 0.2341977949988881,
+      "zone_7": 0.3057746374319948
     },
-    "sensors_with_drift": 18,
+    "sensors_with_drift": 15,
     "high_severity_drift": 0
   },
   "data_quality": {
     "ground_moisture": {
       "missing_percentage": 0.0,
-      "outlier_percentage": 16.883116883116884,
-      "coefficient_variation": 6.600185510008229
+      "outlier_percentage": 20.276497695852534,
+      "coefficient_variation": 7.432486360520123
     },
     "temperature": {
       "missing_percentage": 0.0,
       "outlier_percentage": 0.0,
-      "coefficient_variation": 28.89507050892743
+      "coefficient_variation": 39.19225341368367
     },
     "humidity": {
       "missing_percentage": 0.0,
       "outlier_percentage": 0.0,
-      "coefficient_variation": 12.774736564579495
+      "coefficient_variation": 14.716858781512371
     },
     "nutrient_N": {
       "missing_percentage": 0.0,
-      "outlier_percentage": 0.0,
-      "coefficient_variation": 11.604851403485496
+      "outlier_percentage": 0.9216589861751152,
+      "coefficient_variation": 11.43065608653912
     },
     "nutrient_P": {
       "missing_percentage": 0.0,
-      "outlier_percentage": 0.6493506493506493,
-      "coefficient_variation": 27.650075706833636
+      "outlier_percentage": 0.38402457757296465,
+      "coefficient_variation": 27.43773469058364
     },
     "nutrient_K": {
       "missing_percentage": 0.0,
       "outlier_percentage": 0.0,
-      "coefficient_variation": 17.332129161519738
+      "coefficient_variation": 17.25236110773381
     },
     "pH": {
       "missing_percentage": 0.0,
-      "outlier_percentage": 0.0,
-      "coefficient_variation": 4.056061996366403
+      "outlier_percentage": 0.15360983102918588,
+      "coefficient_variation": 4.164903174277926
     }
   },
   "recommendations": [
